@@ -37,7 +37,9 @@ public:
      */
     double funcao_ativacao( const double& entrada );
     double calcular_erro_media_quadratica( const std::vector<double>& saida_predicao );
+
     double reportar_acuracia( const int contador );
+    void resetar_dados();
 
     double get_tempo_wall();
     double get_tempo_gpu();

@@ -1,7 +1,8 @@
 #include "percetron.h"
 
-#include <iostream>
+#include <sys/time.h>
 
+#include <iostream>
 #include <fstream>
 #include <cstdlib>
 #include <cmath>
@@ -98,6 +99,20 @@ void Perceptron::popular_dataset_treinamento( const std::string& nomeArquivoTrei
 
 }
 
+bool Perceptron::is_predicao_correta( const std::tuple<double, double, int>& entrada, bool exibir_saida_predicao ) {
+
+    double entradaParaFuncaoAtivacao = m_pesos[0] * std::get<0>( entrada ) + m_pesos[1] * std::get<1>( entrada ) + m_pesos[2];
+    double saidaPredicao = funcao_ativacao( entradaParaFuncaoAtivacao );
+    saidaPredicao = saidaPredicao <= 0.5 ? 0 : 1;
+
+    if ( exibir_saida_predicao ) {
+        std::cout << "Saida predicao: " << saidaPredicao << std::endl;
+    }
+
+    return saidaPredicao == std::get<2>( entrada );
+
+}
+
 int Perceptron::get_tamanho_dataset_treinamento() {
 
     return m_allTds.size();
@@ -177,12 +192,130 @@ double Perceptron::funcao_ativacao( const double& entrada ) {
 }
 
 double Perceptron::calcular_erro_media_quadratica( const std::vector<double>& saida_predicao ) {
-    return 0.0;
+
+    assert( saida_predicao.size() == m_tds.size() );
+
+    double erroMediaQuadratica = 0.0;
+
+    for ( size_t pos = 0; pos < m_tds.size(); pos++ ) {
+
+        const double saidaPredicaoModificada = saida_predicao[pos] <= 0.5 ? 0 : 1;
+        // double saidaPredicaoModificada = saida_predicao[pos];
+
+        double error = saidaPredicaoModificada - std::get<2>( m_tds[pos] );
+        double sqError = error * error;
+        erroMediaQuadratica += sqError;
+    }
+
+    erroMediaQuadratica /= m_tds.size();
+
+    return erroMediaQuadratica;
+
 }
 
+void Perceptron::performar_validacao_10_fold_x() {
+
+    std::cout << "Performando 10-fold validacao cruzada..." << std::endl;
+
+    constexpr int NUM_DIVISAO = 10;
+
+    std::cout << "Seguintes resultados para " << NUM_DIVISAO << " divisoes..." << std::endl;
+    std::cout << "Teste rodando  |  Acuracia na amostra de teste (%)" << std::endl;
+
+    double acuraciaMedia = 0.0;
+
+    int contador = 1;
+
+    while ( contador <= NUM_DIVISAO ) {
+
+        resetar_dados();
+        dividir_cruz_dataset( contador );
+        inicializar_pesos();
+        treinar_perceptron();
+
+        double acuracia = reportar_acuracia( contador );
+
+        acuraciaMedia += acuracia;
+
+        std::string formatacao = ( contador == 10 ) ? "         |   " : "          |   ";
+
+        std::cout << contador << formatacao << acuracia << std::endl;
+
+        contador++;
+    }
+
+    acuraciaMedia /= NUM_DIVISAO;
+
+    std::cout << "\nAcuracia media(%): " << acuraciaMedia << std::endl;
+
+}
+
+void Perceptron::dividir_cruz_dataset( const int contador ) {
+
+    assert( m_tds.size() == 0 && m_testSet.size() ==0 );
+
+    int tamanhoTotalDataSet = m_allTds.size();
+    int posInicial = ( contador - 1 ) * ( tamanhoTotalDataSet / 10 );
+    int posFinal = ( contador == 10 ) ? ( posInicial + floor( float(tamanhoTotalDataSet) / 10 ) - 1 + ( tamanhoTotalDataSet % 10 ) )
+        : ( posInicial + floor( float(tamanhoTotalDataSet) / 10 ) - 1 );
 
 
+    for ( int pos = posInicial; pos <= posFinal; pos++ ) {
+        m_testSet.push_back( m_allTds[pos] );
+    }
 
+    m_tds = m_allTds;
+    for ( int pos = posInicial; pos <= posFinal; pos++ ) {
+        m_tds.erase( m_allTds.begin() + pos );
+    }
+
+}
+
+void Perceptron::resetar_dados() {
+
+    m_tds.clear();
+    m_testSet.clear();
+    m_pesos.clear();
+
+}
+
+double Perceptron::reportar_acuracia( const int contador ) {
+
+    assert( m_testSet.size() > 0 );
+
+    int numPredicoesCorretas = 0;
+
+    for ( size_t i = 0; i < m_testSet.size(); i++ ) {
+
+        if ( !is_predicao_correta( m_testSet[i] ) ) {
+            continue;
+        }
+
+        numPredicoesCorretas++;
+
+    }
+
+    return (double) numPredicoesCorretas * 100 / m_testSet.size();
+
+}
+
+double Perceptron::get_tempo_wall() {
+
+    struct timeval tempo;
+
+    if ( gettimeofday( &tempo, nullptr ) ) {
+        return 0;
+    }
+
+    return (double)tempo.tv_sec + (double)tempo.tv_usec * 0.000001;
+
+}
+
+double Perceptron::get_tempo_gpu() {
+
+    return (double)clock() / CLOCKS_PER_SEC;
+
+}
 
 
 
