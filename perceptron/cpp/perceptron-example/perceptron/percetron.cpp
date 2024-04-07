@@ -164,7 +164,7 @@ void Perceptron::atualizar_pesos( const int peso_index, const double entrada, co
 
     double deltaPeso = -1 * TAXA_APREDIZAGEM
                        * ( saida_predicao - saida_atual ) // Diferenca entre o esperado e o resultado atual
-                       * saida_predicao * ( 1 - saida_predicao ) // Derivada da função de ativadação sigmoid
+                       * saida_predicao * ( 1 - saida_predicao ) // Derivada da função de ativação sigmoid
                        * entrada;
 
     m_pesos[peso_index] += deltaPeso;
