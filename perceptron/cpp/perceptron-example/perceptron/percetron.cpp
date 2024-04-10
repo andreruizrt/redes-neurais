@@ -70,7 +70,7 @@ void Perceptron::popular_dataset_treinamento( const std::string& nomeArquivoTrei
             // Pegando valor do X2, segunda entrada
             linha[1] = strtok( buffer, " " );
 
-            if ( linha[1] ) {
+            if ( !linha[1] ) {
                 std::cout << "A formatacao dos dados do arquivo esta incorreta. Segundo parametro de entrada com valor inconsistente" << std::endl;
                 exit( 0 );
             }
@@ -80,7 +80,7 @@ void Perceptron::popular_dataset_treinamento( const std::string& nomeArquivoTrei
             // Pegando valor do target, terceira entrada
             linha[2] = strtok( buffer, " " );
 
-            if ( linha[2] ) {
+            if ( !linha[2] ) {
                 std::cout << "A formatacao dos dados do arquivo esta incorreta. Terceiro parametro de entrada com valor inconsistente" << std::endl;
                 exit( 0 );
             }
