@@ -55,7 +55,7 @@ void Perceptron::popular_dataset_treinamento( const std::string& nomeArquivoTrei
             char buffer[100];
             arquivo.getline( buffer, 100 );
 
-            const char* linha[4] = {};
+            const char* linha[3] = {};
 
             // Pegando valor do X1, primeira entrada
             linha[0] = strtok( buffer, " " );
@@ -101,7 +101,10 @@ void Perceptron::popular_dataset_treinamento( const std::string& nomeArquivoTrei
 
 bool Perceptron::is_predicao_correta( const std::tuple<double, double, int>& entrada, bool exibir_saida_predicao ) {
 
-    double entradaParaFuncaoAtivacao = m_pesos[0] * std::get<0>( entrada ) + m_pesos[1] * std::get<1>( entrada ) + m_pesos[2];
+    double entradaParaFuncaoAtivacao = m_pesos[0] * std::get<0>( entrada )
+                                       + m_pesos[1] * std::get<1>( entrada )
+                                       + m_pesos[2];
+
     double saidaPredicao = funcao_ativacao( entradaParaFuncaoAtivacao );
     saidaPredicao = saidaPredicao <= 0.5 ? 0 : 1;
 
@@ -128,7 +131,7 @@ void Perceptron::popular_dataset_treinamento() {
 
 void Perceptron::treinar_perceptron() {
 
-    double erroMedioTotal = 0.0;
+    double mediaTotalErro = 0.0;
     double erro = 1000.0;
     uint numInteracoes = 1;
 
@@ -140,7 +143,9 @@ void Perceptron::treinar_perceptron() {
 
         for ( size_t pos = 0; pos < m_tds.size(); pos++ ) {
 
-            const double entradaParaFuncaoAtivacao = m_pesos[0] * std::get<0>( m_tds[pos] ) + m_pesos[1] * std::get<1>( m_tds[pos] ) + m_pesos[2];
+            double entradaParaFuncaoAtivacao = m_pesos[0] * std::get<0>( m_tds[pos] )
+                                               + m_pesos[1] * std::get<1>( m_tds[pos] )
+                                               + m_pesos[2];
             double saidaPredicao = funcao_ativacao( entradaParaFuncaoAtivacao );
 
             saidasPredicao.push_back( saidaPredicao );
@@ -154,14 +159,14 @@ void Perceptron::treinar_perceptron() {
         }
 
         erro = calcular_erro_media_quadratica( saidasPredicao );
-        erroMedioTotal += erro;
+        mediaTotalErro += erro;
 
         numInteracoes++;
 
     }
 
-    erroMedioTotal /= numInteracoes;
-    std::cout << "erroMedioTotal: " << erroMedioTotal << std::endl;
+    mediaTotalErro /= numInteracoes;
+    std::cout << "[Treinamento] Media total de erro: " << mediaTotalErro << std::endl;
 
 }
 
@@ -169,8 +174,10 @@ void Perceptron::treinar_perceptron() {
 void Perceptron::inicializar_pesos() {
 
     for ( int pos = 0; pos < 3; pos++ ) {
+
         int val = rand() % 5000 - 2000;
         m_pesos.push_back( (double)val / 10000 );
+
     }
 
 }
@@ -229,7 +236,7 @@ void Perceptron::performar_validacao_10_fold_x() {
     while ( contador <= NUM_DIVISAO ) {
 
         resetar_dados();
-        dividir_cruz_dataset( contador );
+        dividir_cruzamento_dataset( contador );
         inicializar_pesos();
         treinar_perceptron();
 
@@ -250,7 +257,7 @@ void Perceptron::performar_validacao_10_fold_x() {
 
 }
 
-void Perceptron::dividir_cruz_dataset( const int contador ) {
+void Perceptron::dividir_cruzamento_dataset( const int contador ) {
 
     assert( m_tds.size() == 0 && m_testSet.size() ==0 );
 
@@ -295,7 +302,7 @@ double Perceptron::reportar_acuracia( const int contador ) {
 
     }
 
-    return (double) numPredicoesCorretas * 100 / m_testSet.size();
+    return (double)numPredicoesCorretas * 100 / m_testSet.size();
 
 }
 

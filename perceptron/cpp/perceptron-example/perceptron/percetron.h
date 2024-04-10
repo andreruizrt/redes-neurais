@@ -27,7 +27,7 @@ public:
     void atualizar_pesos( const int peso_index, const double entrada, const double saida_atual, const double saida_predicao );
 
     void performar_validacao_10_fold_x();
-    void dividir_cruz_dataset( const int contador );
+    void dividir_cruzamento_dataset( const int contador );
 
     /**
      * @brief funcao_ativacao
