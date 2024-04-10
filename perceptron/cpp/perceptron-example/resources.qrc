@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/dataset_oleo_duas_entradas.data</file>
+    </qresource>
+</RCC>

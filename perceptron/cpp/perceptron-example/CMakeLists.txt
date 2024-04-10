@@ -16,6 +16,7 @@ add_executable(perceptron-example
   main.cpp
   perceptron/percetron.h
   perceptron/percetron.cpp
+  resources.qrc
 )
 target_link_libraries(perceptron-example Qt${QT_VERSION_MAJOR}::Core)
 
